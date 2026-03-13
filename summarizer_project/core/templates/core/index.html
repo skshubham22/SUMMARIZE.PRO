@@ -1,0 +1,653 @@
+<!-- core/templates/core/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SummarizePro | AI Page Summarizer</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts: Outfit & Inter -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@400;500&display=swap"
+        rel="stylesheet">
+    {% load static %}
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-gradient: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            --primary-glow: rgba(37, 99, 235, 0.25);
+            --secondary: #0f172a;
+            --accent: #3b82f6;
+            --bg-glass: rgba(255, 255, 255, 0.88);
+            --card-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-glass: rgba(255, 255, 255, 0.6);
+            --border-dark: rgba(0, 0, 0, 0.04);
+        }
+
+        body {
+            font-family: 'Outfit', 'Inter', sans-serif;
+            background: #f8fafc;
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background Blobs */
+        .bg-blobs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            filter: blur(80px);
+            opacity: 0.6;
+        }
+
+        .blob {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: var(--primary);
+            animation: move 20s infinite alternate;
+        }
+
+        .blob-1 {
+            top: -10%;
+            right: -10%;
+            background: #818cf8;
+            animation-duration: 25s;
+        }
+
+        .blob-2 {
+            bottom: -10%;
+            left: -10%;
+            background: #c084fc;
+            animation-duration: 30s;
+            animation-delay: -5s;
+        }
+
+        .blob-3 {
+            top: 40%;
+            left: 30%;
+            width: 300px;
+            height: 300px;
+            background: #60a5fa;
+            animation-duration: 20s;
+            animation-delay: -10s;
+        }
+
+        @keyframes move {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(100px, 150px) scale(1.1); }
+            66% { transform: translate(-50px, 80px) scale(0.9); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+        /* Advanced Glassmorphism */
+        .glass {
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            box-shadow: inset 0 1px 1px var(--border-glass), var(--card-shadow);
+        }
+
+        /* Navbar */
+        .navbar-custom {
+            padding: 1.5rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand-custom {
+            font-weight: 700;
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 4rem 0 6rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-weight: 700;
+            font-size: 3rem;
+            letter-spacing: -1.5px;
+            margin-bottom: 0.75rem;
+            color: #0f172a;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 2.5rem;
+        }
+
+        /* Search Area */
+        .search-box-wrapper {
+            max-width: 800px;
+            margin: -3rem auto 4rem;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-box {
+            padding: 0.8rem;
+            border-radius: 24px;
+            box-shadow: 0 30px 60px -15px rgba(37, 99, 235, 0.15), 0 10px 20px -10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+            width: 100%;
+            outline: none;
+        }
+
+        .btn-analyze {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 1.1rem 2.8rem;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 20px -5px var(--primary-glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-analyze::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .btn-analyze:hover::before {
+            left: 100%;
+        }
+
+        .btn-analyze:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 20px 30px -10px var(--primary-glow);
+            filter: brightness(1.1);
+        }
+
+        /* Result Cards */
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .main-brief {
+            /* Full partnership with the side card */
+        }
+
+        @media (max-width: 1200px) {
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card-premium {
+            border-radius: 24px;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            padding: 2rem !important;
+            border: 1px solid var(--border-dark);
+        }
+
+        .card-premium:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.12);
+            border-color: rgba(37, 99, 235, 0.2);
+        }
+
+        .magazine-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2.5rem;
+            align-items: center; /* Center vertically for better fill when text is short */
+            min-height: 400px;  /* Ensure a minimum height for the brief */
+        }
+
+        @media (min-width: 992px) {
+            .magazine-layout {
+                grid-template-columns: 1.2fr 0.8fr;
+            }
+            .magazine-layout.reverse {
+                grid-template-columns: 0.8fr 1.2fr;
+            }
+        }
+
+        .magazine-layout.single-col {
+            grid-template-columns: 1fr !important;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .feature-image-frame {
+            position: sticky;
+            top: 2rem;
+            border-radius: 28px;
+            overflow: hidden;
+            aspect-ratio: 4/5;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.1);
+            transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: zoom-in;
+            display: block;
+            animation: float 6s ease-in-out infinite; /* Added floating animation */
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .feature-image-frame:hover {
+            transform: scale(1.02);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.2);
+            border-color: var(--primary);
+        }
+
+        .feature-image-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .feature-image-frame:hover img {
+            transform: scale(1.05);
+        }
+
+        /* History Section */
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .history-card {
+            padding: 1.25rem;
+            border-radius: 20px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            border: 1px solid var(--border-dark);
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .history-card:hover {
+            background: white;
+            border-color: var(--primary);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Animations */
+        .fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+
+        /* Loading Overlay */
+        .loader-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .pulse {
+            width: 80px;
+            height: 80px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(0.8); opacity: 0.5; }
+        }
+
+        /* Reveal on Scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Typewriter Cursor */
+        .cursor-active::after {
+            content: '|';
+            animation: blink 1s infinite alternate;
+            color: var(--primary);
+            margin-left: 2px;
+        }
+
+        @keyframes blink {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div id="loader" class="loader-overlay">
+        <div class="pulse"></div>
+        <h3 class="mt-4 fw-bold">Synthesizing...</h3>
+        <p class="text-muted">Extracting intelligence from the web.</p>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container text-center justify-content-center">
+            <a class="navbar-brand-custom" href="/">SUMMARIZE.PRO</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="hero">
+        <div class="container">
+            <h1 class="fade-in-up">Instant Intelligence. <br><span style="color: #4f46e5;">Zero Noise.</span></h1>
+            <p class="fade-in-up stagger-1">Paste a link or type a topic. We distill thousands of words into the facts you need in seconds.</p>
+        </div>
+    </header>
+
+    <div class="search-box-wrapper fade-in-up stagger-2">
+        <form method="POST" action="{% url 'index' %}" class="glass search-box" onsubmit="document.getElementById('loader').style.display='flex'">
+            {% csrf_token %}
+            <input type="text" name="url" placeholder="Paste link or type topic (e.g. Cricket, Quantum Physics)..." required autocomplete="off">
+            <button type="submit" class="btn-analyze">Analyze <i class="fas fa-bolt ms-2"></i></button>
+        </form>
+    </div>
+
+    <main class="container py-4">
+        {% if error %}
+        <div class="alert alert-danger glass border-0 rounded-4 p-3 mb-5 fade-in-up" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i> {{ error }}
+        </div>
+        {% endif %}
+
+        {% if result %}
+        <section class="result-grid reveal">
+            <!-- Main Intel Brief -->
+            <div class="glass card-premium p-4 main-brief fade-in-up stagger-1">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <span class="badge rounded-pill px-3 py-2 border border-primary border-opacity-25" style="background: var(--primary-gradient); color: white; letter-spacing: 1px; font-weight: 600; font-size: 0.7rem;">AI INTEL BRIEF</span>
+                    <div class="text-muted small" style="font-weight: 500;"><i class="far fa-calendar-alt me-1"></i> Today</div>
+                </div>
+
+                <h1 class="fw-bold mb-4 text-dark" style="font-size: 2.25rem; letter-spacing: -1px;">{{ result.title }}</h1>
+                
+                <div class="magazine-layout {% if not result.image_url %}single-col{% endif %}">
+                    <!-- Left: Content Container -->
+                    <div class="intel-content">
+                        <div class="summary-content mb-4">
+                            <h5 class="fw-bold text-primary mb-3 text-uppercase small letter-spacing-1" style="font-size: 0.75rem;">Executive Overview</h5>
+                            <p id="typing-overview" class="fs-6 lh-base text-dark mb-4" style="font-family: 'Outfit', sans-serif; font-weight: 400; color: #334155 !important;" data-text="{{ result.summary_data.overview }}">
+                                {{ result.summary_data.overview }}
+                            </p>
+                            
+                            <h5 class="fw-bold text-secondary mb-3 text-uppercase small letter-spacing-1" style="font-size: 0.75rem;">Article Deep Dive (Wikipedia)</h5>
+                            <div id="wiki-deep-dive" class="fs-6 lh-lg text-secondary">
+                                {% if result.wiki_data.extra_sections %}
+                                    {% for section in result.wiki_data.extra_sections|slice:":2" %}
+                                    <div class="wiki-section-blob mb-4 p-3 rounded-4" style="background: rgba(37, 99, 235, 0.03); border-left: 3px solid var(--primary);">
+                                        <h6 class="fw-bold text-dark mb-2" style="font-size: 0.9rem;">{{ section.name }}</h6>
+                                        <p class="mb-0" style="font-size: 0.88rem; color: #475569; line-height: 1.6;">{{ section.text }}</p>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div id="typing-insights" class="fs-6 lh-lg text-secondary" style="white-space: pre-line; border-left: 2px solid var(--primary); padding-left: 1.25rem; font-weight: 450; min-height: 100px;" data-text="{{ result.summary_data.insights }}">
+                                        {{ result.summary_data.insights }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Image Container (if available) -->
+                    {% if result.image_url %}
+                    <div class="intel-media d-none d-lg-block">
+                        <a href="{{ result.image_url }}" target="_blank" class="feature-image-frame" title="View full size image">
+                            <img src="{{ result.image_url }}" alt="{{ result.title }}">
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="pt-3 border-top mt-auto">
+                    <a href="{{ result.original_url }}" target="_blank" class="text-primary text-decoration-none small fw-bold">
+                        <i class="fas fa-external-link-alt me-2"></i> View Original Source
+                    </a>
+                </div>
+            </div>
+
+            <!-- Wikipedia Context -->
+            <div class="glass card-premium p-4 fade-in-up stagger-2 reveal d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <span class="badge rounded-pill px-3 py-2 border" style="background: rgba(30, 41, 59, 0.05); color: #475569; letter-spacing: 1px; font-weight: 600; font-size: 0.65rem; border-color: rgba(30, 41, 59, 0.1) !important;">WIKI REFERENCE</span>
+                    <div class="text-muted" style="font-size: 0.75rem;"><i class="fab fa-wikipedia-w"></i></div>
+                </div>
+
+                {% if result.wiki_data %}
+                <div class="wiki-content d-flex flex-column h-100">
+                    <div class="position-relative mb-2 flex-grow-1" style="overflow: hidden;">
+                        <div class="wiki-summary-scroll h-100" style="overflow-y: auto; padding-right: 12px;">
+                            <!-- Summary Blob -->
+                            <div class="wiki-section-blob mb-3 p-3 rounded-4" style="background: rgba(37, 99, 235, 0.02); border-left: 3px solid #cbd5e1;">
+                                <h5 class="fw-bold text-primary mb-3 text-uppercase small letter-spacing-1" style="font-size: 0.75rem;">Source Summary</h5>
+                                <h6 class="fw-bold text-dark mb-2" style="font-size: 1.1rem; letter-spacing: -0.5px;">{{ result.wiki_data.title }}</h6>
+                                <p class="mb-0" style="font-size: 0.88rem; color: #334155; line-height: 1.7; text-align: justify;">
+                                    {{ result.wiki_data.summary|truncatewords:400 }}
+                                </p>
+                            </div>
+
+                            {% if result.wiki_data.sections %}
+                            <!-- Taxonomy Blob -->
+                            <div class="wiki-section-blob mb-3 p-3 rounded-4" style="background: rgba(37, 99, 235, 0.02); border-left: 3px solid #cbd5e1;">
+                                <h5 class="fw-bold text-secondary mb-3 text-uppercase small letter-spacing-1" style="font-size: 0.75rem;">Knowledge Graph</h5>
+                                <div class="d-flex flex-wrap gap-1">
+                                    {% for section in result.wiki_data.sections|slice:":12" %}
+                                    <span class="badge bg-white text-dark border p-1" style="font-weight: 500; font-size: 0.68rem; border-color: rgba(37, 99, 235, 0.1) !important;">{{ section }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 50px; background: linear-gradient(transparent, rgba(255,255,255,0.98)); pointer-events: none;"></div>
+                    </div>
+                    
+                    <div class="pt-3 border-top mt-auto">
+                        <a href="{{ result.wiki_data.url }}" target="_blank" class="text-primary text-decoration-none small fw-bold">
+                            <i class="fab fa-wikipedia-w me-2"></i> Explore Wikipedia Dataset
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-5 opacity-50">
+                    <i class="fas fa-search-minus fa-3x mb-3"></i>
+                    <p>No related Wikipedia records found.</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Recent History -->
+        <section class="mt-5 reveal" style="max-width: 1000px; margin: 0 auto;">
+            <div class="text-center mb-5">
+                <h3 class="fw-bold mb-2" style="letter-spacing: -1px;">Recent Insights</h3>
+                <p class="text-muted mb-0">Your latest summarization activities.</p>
+                <div class="text-primary small fw-bold mt-2" style="font-size: 0.7rem; letter-spacing: 1px;">SYNCED <i class="fas fa-check-circle ms-1"></i></div>
+            </div>
+
+            <div class="history-grid">
+                {% for item in recent_summaries %}
+                <a href="?history_id={{ item.id }}" class="text-decoration-none" style="color: inherit;">
+                    <div class="glass history-card reveal">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-light text-dark border-0 small">{{ item.created_at|timesince }} ago</span>
+                        </div>
+                        <h6 class="fw-bold text-truncate mb-2">{{ item.wiki_title|default:"Web Content" }}</h6>
+                        <p class="text-muted small text-truncate-2 mb-3" style="font-size: 0.8rem; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            {{ item.overview|truncatewords:20 }}
+                        </p>
+                        <div class="small text-primary fw-bold" style="font-size: 0.75rem;">
+                            <i class="fas fa-link me-1"></i> {{ item.url|truncatechars:35 }}
+                        </div>
+                    </div>
+                </a>
+                {% empty %}
+                <div class="col-12 text-center py-5 glass rounded-4 opacity-50">
+                    <p class="mb-0">No history available yet. Start by analyzing a link!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+
+    <footer class="py-5 mt-5 border-top bg-white">
+        <div class="container text-center">
+            <h5 class="fw-bold navbar-brand-custom mb-3">SUMMARIZE.PRO</h5>
+            <p class="text-muted small mb-4">Crafted for visual clarity and data precision.</p>
+            <div class="d-flex justify-content-center gap-4 text-muted mb-4 fs-5">
+                <i class="fab fa-twitter"></i>
+                <i class="fab fa-github"></i>
+                <i class="fab fa-linkedin"></i>
+            </div>
+            <p class="text-muted small opacity-50">&copy; 2026 SummarizePro AI Systems. Engineered with &#10084; by Shubham Yadav</p>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll Reveal Implementation
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // Typewriter Effect Implementation
+        function typeWriter(element, text, speed = 15) {
+            if (!element || !text) return; // Null check to prevent empty runs
+            
+            let i = 0;
+            element.innerHTML = '';
+            element.classList.add('cursor-active');
+            
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    element.classList.remove('cursor-active');
+                }
+            }
+            type();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if we have a summary to animate
+            const overviewEl = document.getElementById('typing-overview');
+            const insightsEl = document.getElementById('typing-insights');
+
+            if (overviewEl) {
+                const overviewText = overviewEl.getAttribute('data-text');
+                if (overviewText && overviewText.trim() !== '') {
+                    setTimeout(() => typeWriter(overviewEl, overviewText, 10), 500);
+                }
+            }
+
+            if (insightsEl) {
+                const insightsText = insightsEl.getAttribute('data-text');
+                if (insightsText && insightsText.trim() !== '') {
+                    setTimeout(() => typeWriter(insightsEl, insightsText, 15), 1500);
+                } else {
+                    // Fallback for visual fill if insights are missing
+                    insightsEl.innerHTML = "• System generating additional insights...\n• Reference source intelligence report for full details.";
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
