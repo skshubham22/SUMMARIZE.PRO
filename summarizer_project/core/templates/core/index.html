@@ -90,17 +90,28 @@
         }
 
         @keyframes move {
-            0% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(100px, 150px) scale(1.1); }
-            66% { transform: translate(-50px, 80px) scale(0.9); }
-            100% { transform: translate(0, 0) scale(1); }
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(100px, 150px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-50px, 80px) scale(0.9);
+            }
+
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
         }
 
         /* Advanced Glassmorphism */
         .glass {
             background: var(--bg-glass);
-            backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
             border: 1px solid var(--border-glass);
             box-shadow: inset 0 1px 1px var(--border-glass), var(--card-shadow);
         }
@@ -190,12 +201,10 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(255, 255, 255, 0.2),
-                transparent
-            );
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.2),
+                    transparent);
             transition: 0.5s;
         }
 
@@ -218,7 +227,7 @@
         }
 
         .main-brief {
-            /* Full partnership with the side card */
+            display: block;
         }
 
         @media (max-width: 1200px) {
@@ -246,14 +255,17 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 2.5rem;
-            align-items: center; /* Center vertically for better fill when text is short */
-            min-height: 400px;  /* Ensure a minimum height for the brief */
+            align-items: center;
+            /* Center vertically for better fill when text is short */
+            min-height: 400px;
+            /* Ensure a minimum height for the brief */
         }
 
         @media (min-width: 992px) {
             .magazine-layout {
                 grid-template-columns: 1.2fr 0.8fr;
             }
+
             .magazine-layout.reverse {
                 grid-template-columns: 0.8fr 1.2fr;
             }
@@ -278,13 +290,22 @@
             transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             cursor: zoom-in;
             display: block;
-            animation: float 6s ease-in-out infinite; /* Added floating animation */
+            animation: float 6s ease-in-out infinite;
+            /* Added floating animation */
         }
 
         @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
-            100% { transform: translateY(0px); }
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
         }
 
         .feature-image-frame:hover {
@@ -333,12 +354,24 @@
         }
 
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .stagger-1 { animation-delay: 0.1s; }
-        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-1 {
+            animation-delay: 0.1s;
+        }
+
+        .stagger-2 {
+            animation-delay: 0.2s;
+        }
 
         /* Loading Overlay */
         .loader-overlay {
@@ -362,9 +395,20 @@
         }
 
         @keyframes pulse {
-            0% { transform: scale(0.8); opacity: 0.5; }
-            50% { transform: scale(1.2); opacity: 0.8; }
-            100% { transform: scale(0.8); opacity: 0.5; }
+            0% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
         }
 
         /* Reveal on Scroll */
@@ -388,8 +432,26 @@
         }
 
         @keyframes blink {
-            from { opacity: 1; }
-            to { opacity: 0; }
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+
+        .wiki-badge {
+            background: rgba(30, 41, 59, 0.05);
+            color: #475569;
+            letter-spacing: 1px;
+            font-weight: 600;
+            font-size: 0.65rem;
+            border-color: rgba(30, 41, 59, 0.1) !important;
+        }
+
+        .wiki-icon-label {
+            font-size: 0.75rem;
         }
     </style>
 </head>
@@ -418,14 +480,17 @@
     <header class="hero">
         <div class="container">
             <h1 class="fade-in-up">Instant Intelligence. <br><span style="color: #4f46e5;">Zero Noise.</span></h1>
-            <p class="fade-in-up stagger-1">Paste a link or type a topic. We distill thousands of words into the facts you need in seconds.</p>
+            <p class="fade-in-up stagger-1">Paste a link or type a topic. We distill thousands of words into the facts
+                you need in seconds.</p>
         </div>
     </header>
 
     <div class="search-box-wrapper fade-in-up stagger-2">
-        <form method="POST" action="{% url 'index' %}" class="glass search-box" onsubmit="document.getElementById('loader').style.display='flex'">
+        <form method="POST" action="{% url 'index' %}" class="glass search-box"
+            onsubmit="document.getElementById('loader').style.display='flex'">
             {% csrf_token %}
-            <input type="text" name="url" placeholder="Paste link or type topic (e.g. Cricket, Quantum Physics)..." required autocomplete="off">
+            <input type="text" name="url" placeholder="Paste link or type topic (e.g. Cricket, Quantum Physics)..."
+                required autocomplete="off">
             <button type="submit" class="btn-analyze">Analyze <i class="fas fa-bolt ms-2"></i></button>
         </form>
     </div>
@@ -442,34 +507,47 @@
             <!-- Main Intel Brief -->
             <div class="glass card-premium p-4 main-brief fade-in-up stagger-1">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <span class="badge rounded-pill px-3 py-2 border border-primary border-opacity-25" style="background: var(--primary-gradient); color: white; letter-spacing: 1px; font-weight: 600; font-size: 0.7rem;">AI INTEL BRIEF</span>
-                    <div class="text-muted small" style="font-weight: 500;"><i class="far fa-calendar-alt me-1"></i> Today</div>
+                    <span class="badge rounded-pill px-3 py-2 border border-primary border-opacity-25"
+                        style="background: var(--primary-gradient); color: white; letter-spacing: 1px; font-weight: 600; font-size: 0.7rem;">AI
+                        INTEL BRIEF</span>
+                    <div class="text-muted small" style="font-weight: 500;"><i class="far fa-calendar-alt me-1"></i>
+                        Today</div>
                 </div>
 
-                <h1 class="fw-bold mb-4 text-dark" style="font-size: 2.25rem; letter-spacing: -1px;">{{ result.title }}</h1>
-                
+                <h1 class="fw-bold mb-4 text-dark" style="font-size: 2.25rem; letter-spacing: -1px;">{{ result.title }}
+                </h1>
+
                 <div class="magazine-layout {% if not result.image_url %}single-col{% endif %}">
                     <!-- Left: Content Container -->
                     <div class="intel-content">
                         <div class="summary-content mb-4">
-                            <h5 class="fw-bold text-primary mb-3 text-uppercase small letter-spacing-1" style="font-size: 0.75rem;">Executive Overview</h5>
-                            <p id="typing-overview" class="fs-6 lh-base text-dark mb-4" style="font-family: 'Outfit', sans-serif; font-weight: 400; color: #334155 !important;" data-text="{{ result.summary_data.overview }}">
+                            <h5 class="fw-bold text-primary mb-3 text-uppercase small letter-spacing-1"
+                                style="font-size: 0.75rem;">Executive Overview</h5>
+                            <p id="typing-overview" class="fs-6 lh-base text-dark mb-4"
+                                style="font-family: 'Outfit', sans-serif; font-weight: 400; color: #334155 !important;"
+                                data-text="{{ result.summary_data.overview }}">
                                 {{ result.summary_data.overview }}
                             </p>
-                            
-                            <h5 class="fw-bold text-secondary mb-3 text-uppercase small letter-spacing-1" style="font-size: 0.75rem;">Article Deep Dive (Wikipedia)</h5>
+
+                            <h5 class="fw-bold text-secondary mb-3 text-uppercase small letter-spacing-1"
+                                style="font-size: 0.75rem;">Article Deep Dive (Wikipedia)</h5>
                             <div id="wiki-deep-dive" class="fs-6 lh-lg text-secondary">
                                 {% if result.wiki_data.extra_sections %}
-                                    {% for section in result.wiki_data.extra_sections|slice:":2" %}
-                                    <div class="wiki-section-blob mb-4 p-3 rounded-4" style="background: rgba(37, 99, 235, 0.03); border-left: 3px solid var(--primary);">
-                                        <h6 class="fw-bold text-dark mb-2" style="font-size: 0.9rem;">{{ section.name }}</h6>
-                                        <p class="mb-0" style="font-size: 0.88rem; color: #475569; line-height: 1.6;">{{ section.text }}</p>
-                                    </div>
-                                    {% endfor %}
+                                {% for section in result.wiki_data.extra_sections|slice:":2" %}
+                                <div class="wiki-section-blob mb-4 p-3 rounded-4"
+                                    style="background: rgba(37, 99, 235, 0.03); border-left: 3px solid var(--primary);">
+                                    <h6 class="fw-bold text-dark mb-2" style="font-size: 0.9rem;">{{ section.name }}
+                                    </h6>
+                                    <p class="mb-0" style="font-size: 0.88rem; color: #475569; line-height: 1.6;">{{
+                                        section.text }}</p>
+                                </div>
+                                {% endfor %}
                                 {% else %}
-                                    <div id="typing-insights" class="fs-6 lh-lg text-secondary" style="white-space: pre-line; border-left: 2px solid var(--primary); padding-left: 1.25rem; font-weight: 450; min-height: 100px;" data-text="{{ result.summary_data.insights }}">
-                                        {{ result.summary_data.insights }}
-                                    </div>
+                                <div id="typing-insights" class="fs-6 lh-lg text-secondary"
+                                    style="white-space: pre-line; border-left: 2px solid var(--primary); padding-left: 1.25rem; font-weight: 450; min-height: 100px;"
+                                    data-text="{{ result.summary_data.insights }}">
+                                    {{ result.summary_data.insights }}
+                                </div>
                                 {% endif %}
                             </div>
                         </div>
@@ -478,7 +556,8 @@
                     <!-- Right: Image Container (if available) -->
                     {% if result.image_url %}
                     <div class="intel-media d-none d-lg-block">
-                        <a href="{{ result.image_url }}" target="_blank" class="feature-image-frame" title="View full size image">
+                        <a href="{{ result.image_url }}" target="_blank" class="feature-image-frame"
+                            title="View full size image">
                             <img src="{{ result.image_url }}" alt="{{ result.title }}">
                         </a>
                     </div>
@@ -486,7 +565,8 @@
                 </div>
 
                 <div class="pt-3 border-top mt-auto">
-                    <a href="{{ result.original_url }}" target="_blank" class="text-primary text-decoration-none small fw-bold">
+                    <a href="{{ result.original_url }}" target="_blank"
+                        class="text-primary text-decoration-none small fw-bold">
                         <i class="fas fa-external-link-alt me-2"></i> View Original Source
                     </a>
                 </div>
@@ -495,8 +575,8 @@
             <!-- Wikipedia Context -->
             <div class="glass card-premium p-4 fade-in-up stagger-2 reveal d-flex flex-column">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <span class="badge rounded-pill px-3 py-2 border" style="background: rgba(30, 41, 59, 0.05); color: #475569; letter-spacing: 1px; font-weight: 600; font-size: 0.65rem; border-color: rgba(30, 41, 59, 0.1) !important;">WIKI REFERENCE</span>
-                    <div class="text-muted" style="font-size: 0.75rem;"><i class="fab fa-wikipedia-w"></i></div>
+                    <span class="badge rounded-pill px-3 py-2 border wiki-badge">WIKI REFERENCE</span>
+                    <div class="text-muted wiki-icon-label"><i class="fab fa-wikipedia-w"></i></div>
                 </div>
 
                 {% if result.wiki_data %}
@@ -504,31 +584,42 @@
                     <div class="position-relative mb-2 flex-grow-1" style="overflow: hidden;">
                         <div class="wiki-summary-scroll h-100" style="overflow-y: auto; padding-right: 12px;">
                             <!-- Summary Blob -->
-                            <div class="wiki-section-blob mb-3 p-3 rounded-4" style="background: rgba(37, 99, 235, 0.02); border-left: 3px solid #cbd5e1;">
-                                <h5 class="fw-bold text-primary mb-3 text-uppercase small letter-spacing-1" style="font-size: 0.75rem;">Source Summary</h5>
-                                <h6 class="fw-bold text-dark mb-2" style="font-size: 1.1rem; letter-spacing: -0.5px;">{{ result.wiki_data.title }}</h6>
-                                <p class="mb-0" style="font-size: 0.88rem; color: #334155; line-height: 1.7; text-align: justify;">
+                            <div class="wiki-section-blob mb-3 p-3 rounded-4"
+                                style="background: rgba(37, 99, 235, 0.02); border-left: 3px solid #cbd5e1;">
+                                <h5 class="fw-bold text-primary mb-3 text-uppercase small letter-spacing-1"
+                                    style="font-size: 0.75rem;">Source Summary</h5>
+                                <h6 class="fw-bold text-dark mb-2" style="font-size: 1.1rem; letter-spacing: -0.5px;">{{
+                                    result.wiki_data.title }}</h6>
+                                <p class="mb-0"
+                                    style="font-size: 0.88rem; color: #334155; line-height: 1.7; text-align: justify;">
                                     {{ result.wiki_data.summary|truncatewords:400 }}
                                 </p>
                             </div>
 
                             {% if result.wiki_data.sections %}
                             <!-- Taxonomy Blob -->
-                            <div class="wiki-section-blob mb-3 p-3 rounded-4" style="background: rgba(37, 99, 235, 0.02); border-left: 3px solid #cbd5e1;">
-                                <h5 class="fw-bold text-secondary mb-3 text-uppercase small letter-spacing-1" style="font-size: 0.75rem;">Knowledge Graph</h5>
+                            <div class="wiki-section-blob mb-3 p-3 rounded-4"
+                                style="background: rgba(37, 99, 235, 0.02); border-left: 3px solid #cbd5e1;">
+                                <h5 class="fw-bold text-secondary mb-3 text-uppercase small letter-spacing-1"
+                                    style="font-size: 0.75rem;">Knowledge Graph</h5>
                                 <div class="d-flex flex-wrap gap-1">
                                     {% for section in result.wiki_data.sections|slice:":12" %}
-                                    <span class="badge bg-white text-dark border p-1" style="font-weight: 500; font-size: 0.68rem; border-color: rgba(37, 99, 235, 0.1) !important;">{{ section }}</span>
+                                    <span class="badge bg-white text-dark border p-1"
+                                        style="font-weight: 500; font-size: 0.68rem; border-color: rgba(37, 99, 235, 0.1) !important;">{{
+                                        section }}</span>
                                     {% endfor %}
                                 </div>
                             </div>
                             {% endif %}
                         </div>
-                        <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 50px; background: linear-gradient(transparent, rgba(255,255,255,0.98)); pointer-events: none;"></div>
+                        <div
+                            style="position: absolute; bottom: 0; left: 0; right: 0; height: 50px; background: linear-gradient(transparent, rgba(255,255,255,0.98)); pointer-events: none;">
+                        </div>
                     </div>
-                    
+
                     <div class="pt-3 border-top mt-auto">
-                        <a href="{{ result.wiki_data.url }}" target="_blank" class="text-primary text-decoration-none small fw-bold">
+                        <a href="{{ result.wiki_data.url }}" target="_blank"
+                            class="text-primary text-decoration-none small fw-bold">
                             <i class="fab fa-wikipedia-w me-2"></i> Explore Wikipedia Dataset
                         </a>
                     </div>
@@ -548,7 +639,8 @@
             <div class="text-center mb-5">
                 <h3 class="fw-bold mb-2" style="letter-spacing: -1px;">Recent Insights</h3>
                 <p class="text-muted mb-0">Your latest summarization activities.</p>
-                <div class="text-primary small fw-bold mt-2" style="font-size: 0.7rem; letter-spacing: 1px;">SYNCED <i class="fas fa-check-circle ms-1"></i></div>
+                <div class="text-primary small fw-bold mt-2" style="font-size: 0.7rem; letter-spacing: 1px;">SYNCED <i
+                        class="fas fa-check-circle ms-1"></i></div>
             </div>
 
             <div class="history-grid">
@@ -556,10 +648,12 @@
                 <a href="?history_id={{ item.id }}" class="text-decoration-none" style="color: inherit;">
                     <div class="glass history-card reveal">
                         <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge bg-light text-dark border-0 small">{{ item.created_at|timesince }} ago</span>
+                            <span class="badge bg-light text-dark border-0 small">{{ item.created_at|timesince }}
+                                ago</span>
                         </div>
                         <h6 class="fw-bold text-truncate mb-2">{{ item.wiki_title|default:"Web Content" }}</h6>
-                        <p class="text-muted small text-truncate-2 mb-3" style="font-size: 0.8rem; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        <p class="text-muted small text-truncate-2 mb-3"
+                            style="font-size: 0.8rem; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                             {{ item.overview|truncatewords:20 }}
                         </p>
                         <div class="small text-primary fw-bold" style="font-size: 0.75rem;">
@@ -581,11 +675,15 @@
             <h5 class="fw-bold navbar-brand-custom mb-3">SUMMARIZE.PRO</h5>
             <p class="text-muted small mb-4">Crafted for visual clarity and data precision.</p>
             <div class="d-flex justify-content-center gap-4 text-muted mb-4 fs-5">
-                <i class="fab fa-twitter"></i>
-                <i class="fab fa-github"></i>
-                <i class="fab fa-linkedin"></i>
+                <!-- <i class="fab fa-twitter"></i> -->
+                <!-- <i class="fab fa-github"></i> -->
+                <!-- <i class="fab fa-linkedin"></i> -->
+                <a href="https://github.com/skshubham22" target="_blank">
+                    <i class="fab fa-github"></i>
+                </a>
             </div>
-            <p class="text-muted small opacity-50">&copy; 2026 SummarizePro AI Systems. Engineered with &#10084; by Shubham Yadav</p>
+            <p class="text-muted small opacity-50">&copy; 2026 SummarizePro AI Systems. Engineered with &#10084; by
+                Shubham Yadav</p>
         </div>
     </footer>
 
@@ -608,11 +706,11 @@
         // Typewriter Effect Implementation
         function typeWriter(element, text, speed = 15) {
             if (!element || !text) return; // Null check to prevent empty runs
-            
+
             let i = 0;
             element.innerHTML = '';
             element.classList.add('cursor-active');
-            
+
             function type() {
                 if (i < text.length) {
                     element.innerHTML += text.charAt(i);

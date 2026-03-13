@@ -7,12 +7,26 @@ from readability import Document
 from urllib.parse import urlparse, parse_qs
 import re
 from collections import Counter
+from typing import List, Optional, Any
 
 # Set NLTK data path to local folder
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 nltk_data_path = os.path.join(BASE_DIR, 'nltk_data')
 if nltk_data_path not in nltk.data.path:
     nltk.data.path.append(nltk_data_path)
+
+class PageMock:
+    """
+    Mock object that mimics the 'wikipedia' library page object.
+    Provides explicit attributes for type-checking and cleaner internal access.
+    """
+    def __init__(self, title: str = "", summary: str = "", content: str = "", url: str = "", images: Optional[List[str]] = None):
+        self.title: str = title
+        self.summary: str = summary
+        self.content: str = content
+        self.url: str = url
+        self.sections: List[Any] = []
+        self.images: List[str] = images or []
 
 class WikiSearcher:
     """
@@ -25,7 +39,7 @@ class WikiSearcher:
     }
 
     @classmethod
-    def search(cls, query, limit=5):
+    def search(cls, query: str, limit: int = 5) -> List[str]:
         try:
             params = {
                 "action": "query",
@@ -36,13 +50,14 @@ class WikiSearcher:
             res = requests.get(cls.API_URL, params=params, headers=cls.HEADERS, timeout=10)
             if res.status_code == 200:
                 data = res.json()
-                return [item['title'] for item in data['query']['search']]
+                items = data.get('query', {}).get('search', [])
+                return [str(item.get('title', '')) for item in items]
             return []
         except Exception:
             return []
 
     @classmethod
-    def get_page(cls, title):
+    def get_page(cls, title: str) -> Optional[PageMock]:
         try:
             params = {
                 "action": "query",
@@ -57,24 +72,23 @@ class WikiSearcher:
             res = requests.get(cls.API_URL, params=params, headers=cls.HEADERS, timeout=10)
             if res.status_code == 200:
                 data = res.json()
-                pages = data['query']['pages']
+                pages = data.get('query', {}).get('pages', {})
                 for pid in pages:
                     p = pages[pid]
                     if pid == "-1": return None # Page not found
                     
-                    # Create a mock object that mimics the 'wikipedia' library page object
-                    class PageMock: pass
-                    page = PageMock()
-                    page.title = p.get('title', title)
-                    page.summary = p.get('extract', '')
-                    page.content = page.summary # For our intro-based summarization
-                    page.url = p.get('fullurl', f"https://en.wikipedia.org/wiki/{title.replace(' ', '_')}")
-                    
-                    # Basic sections (only intro available via intro extract)
-                    page.sections = [] 
-                    page.images = []
+                    # Instantiate our top-level PageMock
+                    images: List[str] = []
                     if 'thumbnail' in p:
-                        page.images.append(p['thumbnail']['source'])
+                        images.append(str(p['thumbnail'].get('source', '')))
+                        
+                    page = PageMock(
+                        title=str(p.get('title', title)),
+                        summary=str(p.get('extract', '')),
+                        content=str(p.get('extract', '')), # For intro-based summarization
+                        url=str(p.get('fullurl', f"https://en.wikipedia.org/wiki/{title.replace(' ', '_')}")),
+                        images=images
+                    )
                     
                     return page
             return None
@@ -163,24 +177,24 @@ def smart_wiki_search(query):
         if page.title.lower() == refined_clean:
             return page
         # Good confidence if refined query is a major part of title or intro
-        if refined_clean in page.title.lower() or refined_clean in page.summary.lower()[:200]:
+        if refined_clean in page.title.lower() or refined_clean in str(page.summary.lower())[:200]:
             return page
 
     # 2. Results-based Search with Scoring
-    results = WikiSearcher.search(refined_query, limit=8)
+    results: Any = WikiSearcher.search(refined_query, limit=8)
     if not results:
          # Try one last time with original query if refined one returned nothing
          results = WikiSearcher.search(query, limit=5)
     
-    scored_pages = []
+    scored_pages: Any = []
     
     for title in results[:6]:
-        p = WikiSearcher.get_page(title)
+        p: Optional[PageMock] = WikiSearcher.get_page(title)
         if not p: continue
         
-        score = 0
-        p_title_low = p.title.lower()
-        p_summary_low = p.summary.lower()
+        score: int = 0
+        p_title_low: str = p.title.lower()
+        p_summary_low: str = p.summary.lower()
         
         # Exact match (Massive boost)
         if p_title_low == refined_clean: score += 100
@@ -195,13 +209,13 @@ def smart_wiki_search(query):
         score += len(overlap) * 15
         
         # Subject extraction check for "of" queries
-        if " of " in refined_clean:
-            subject = refined_clean.split(" of ")[-1].strip()
+        if str(" of ") in str(refined_clean):
+            subject: str = str(refined_clean).split(" of ")[-1].strip()
             if subject in p_title_low:
                 # If the title IS exactly the subject (e.g. "Rainbow" for "Color of Rainbow")
                 if p_title_low == subject: score += 80
                 else: score += 30
-            elif subject in p_summary_low[:300]:
+            elif subject in str(p_summary_low)[:300]:
                 score += 10
         
         # Penalty for disambiguation or list pages unless exact match
@@ -214,7 +228,9 @@ def smart_wiki_search(query):
     # Sort by score and pick the best
     if scored_pages:
         scored_pages.sort(key=lambda x: x[1], reverse=True)
-        best_page, best_score = scored_pages[0]
+        best_match = scored_pages[0]
+        best_page: PageMock = best_match[0]
+        best_score: int = best_match[1]
         
         # Validation threshold
         if best_score > 20: 
@@ -290,8 +306,8 @@ def get_content_summary(text_only, title, original_url, is_blocked=False, wiki_d
                     if any(char.isdigit() for char in sent): score += 20
                     sentence_scores[sent] = score / (len(sent_words) ** 0.5)
 
-                sorted_sentences = sorted(sentence_scores.items(), key=lambda x: x[1], reverse=True)
-                top_insights = [s.strip() for s, score in sorted_sentences[:2]]
+                sorted_sentences: Any = sorted(sentence_scores.items(), key=lambda x: x[1], reverse=True)
+                top_insights = [str(s).strip() for s, score in sorted_sentences[:2]]
                 
                 if not top_insights:
                     top_insights = [s.strip() for s in sentences[1:3]]
