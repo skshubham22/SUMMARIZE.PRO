@@ -90,6 +90,7 @@ class WikiSearcher:
                 "exintro": True,
                 "explaintext": True,
                 "titles": title,
+                "redirects": 1,
                 "format": "json",
                 "pithumbsize": 800,
                 "inprop": "url"
@@ -211,54 +212,56 @@ def smart_wiki_search(query):
          # Try one last time with original query if refined one returned nothing
          results = WikiSearcher.search(query, limit=5)
     
+    import difflib
+    
     scored_pages: Any = []
     
     for title in results[:6]:
         p: Optional[PageMock] = WikiSearcher.get_page(title)
         if not p: continue
         
-        score: int = 0
+        score: float = 0
         p_title_low: str = p.title.lower()
         p_summary_low: str = p.summary.lower()
         
-        # Exact match (Massive boost)
-        if p_title_low == refined_clean: score += 100
+        # 1. Exact or Fuzzy Title Match
+        if p_title_low == refined_clean: 
+            score += 100
+        else:
+            # Fuzzy match for typos
+            ratio = difflib.SequenceMatcher(None, refined_clean, p_title_low).ratio()
+            if ratio > 0.8: score += ratio * 100
         
-        # Partial title match
-        if refined_clean in p_title_low: score += 50
+        # 2. Key Term Presence (Bonus)
+        if refined_clean in p_title_low: score += 40
+        elif refined_clean in p_summary_low[:300].lower(): score += 15
         
-        # Word overlap check
+        # 3. Word overlap check
         refined_words = set(re.findall(r'\w+', refined_clean))
         p_title_words = set(re.findall(r'\w+', p_title_low))
         overlap = refined_words.intersection(p_title_words)
-        score += len(overlap) * 15
+        score += len(overlap) * 20
         
         # Subject extraction check for "of" queries
-        if str(" of ") in str(refined_clean):
-            subject: str = str(refined_clean).split(" of ")[-1].strip()
+        if " of " in refined_clean:
+            subject = refined_clean.split(" of ")[-1].strip()
             if subject in p_title_low:
-                # If the title IS exactly the subject (e.g. "Rainbow" for "Color of Rainbow")
                 if p_title_low == subject: score += 80
                 else: score += 30
-            elif subject in str(p_summary_low)[:300]:
-                score += 10
         
         # Penalty for disambiguation or list pages unless exact match
         if any(w in p_title_low for w in ["disambiguation", "list of", "color-coded"]):
-            if p_title_low != refined_clean:
-                score -= 40
+            if p_title_low != refined_clean: score -= 50
         
         scored_pages.append((p, score))
     
     # Sort by score and pick the best
     if scored_pages:
         scored_pages.sort(key=lambda x: x[1], reverse=True)
-        best_match = scored_pages[0]
-        best_page: PageMock = best_match[0]
-        best_score: int = best_match[1]
+        best_page, best_score = scored_pages[0]
         
-        # Validation threshold
-        if best_score > 20: 
+        # Validation threshold (ratio + overlap should ideally cross 40-50)
+        if best_score > 35: 
             return best_page
 
     return None
