@@ -1,7 +1,9 @@
-# core/models.py
 from django.db import models
+from django.conf import settings
 
 class Summary(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    session_key = models.CharField(max_length=40, db_index=True, null=True, blank=True)
     url = models.URLField(max_length=500)
     wiki_title = models.CharField(max_length=200, blank=True, null=True)
     

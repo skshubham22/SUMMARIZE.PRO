@@ -7,11 +7,22 @@ def index(request):
     result = None
     error = None
     
+    # Ensure a session exists
+    if not request.session.session_key:
+        request.session.create()
+    session_key = request.session.session_key
+    user = request.user if request.user.is_authenticated else None
+
     # Handle History Retrieval
     history_id = request.GET.get('history_id')
     if history_id:
         try:
-            item = Summary.objects.get(id=history_id)
+            # Only allow looking up your own summaries
+            if user:
+                item = Summary.objects.get(id=history_id, user=user)
+            else:
+                item = Summary.objects.get(id=history_id, session_key=session_key)
+            
             result = {
                 'success': True,
                 'original_url': item.url,
@@ -31,7 +42,7 @@ def index(request):
                 'wiki_data': item.wiki_json or {'title': item.wiki_title, 'summary': item.overview, 'url': item.url}
             }
         except Summary.DoesNotExist:
-            error = "Selected history item not found."
+            error = "Selected history item not found (or access denied)."
 
     if request.method == 'POST':
         query = request.POST.get('url', '').strip()
@@ -48,8 +59,10 @@ def index(request):
                     data = get_search_summary(query)
                 
                 if data['success']:
-                    # Save to DB with all metrics
+                    # Save to DB with all metrics and ownership
                     Summary.objects.create(
+                        user=user,
+                        session_key=session_key if not user else None,
                         url=data['original_url'],
                         wiki_title=data['title'],
                         overview=data['summary_data']['overview'],
@@ -69,7 +82,14 @@ def index(request):
             except Exception as e:
                 error = f"Internal Error: {str(e)}"
 
-    recent_summaries = Summary.objects.all().order_by('-created_at')[:6]
+    # Show only my history
+    if user:
+        mine = Summary.objects.filter(user=user)
+    else:
+        mine = Summary.objects.filter(session_key=session_key)
+    
+    recent_summaries = mine.order_by('-created_at')[:6]
+    
     return render(request, 'core/index.html', {
         'result': result, 
         'error': error,
